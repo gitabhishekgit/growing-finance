@@ -11,21 +11,35 @@ export const siteConfig = {
 };
 
 export const contactInfo = {
-  phone: "+91 98765 43210",
-  phoneRaw: "+919876543210",
-  email: "info@growingfinance.co.in",
-  supportEmail: "support@growingfinance.co.in",
+  phone: "+91 83688 56402",
+  phoneRaw: "+918368856402",
+  whatsapp: "+91 83688 56402",
+  whatsappNumber: "918368856402",
+  whatsappMessage: "Hi, I'm interested in Growing Finance services. Please contact me.",
+  email: "abhishek.sarwan90@gmail.com",
+  supportEmail: "abhishek.sarwan90@gmail.com",
   gst: "27AABCG1234F1Z5",
   address: {
-    line1: "Suite 402, Finance Tower",
-    line2: "Bandra Kurla Complex",
-    city: "Mumbai",
-    state: "Maharashtra",
-    pincode: "400051",
+    line1: "4th Floor, Hariom Tower",
+    line2: "",
+    city: "Ranchi",
+    state: "Jharkhand",
+    pincode: "",
     country: "India",
   },
   hours: "Mon – Sat: 9:00 AM – 6:00 PM",
 };
+
+export function getWhatsAppUrl(message?: string) {
+  const text = encodeURIComponent(message ?? contactInfo.whatsappMessage);
+  return `https://wa.me/${contactInfo.whatsappNumber}?text=${text}`;
+}
+
+export function getFullAddress() {
+  const { line1, line2, city, state, pincode } = contactInfo.address;
+  const parts = [line1, line2, city, state, pincode].filter(Boolean);
+  return parts.join(", ");
+}
 
 export const navLinks = [
   { href: "/", label: "Home", labelHindi: "होम" },

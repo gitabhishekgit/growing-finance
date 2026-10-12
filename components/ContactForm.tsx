@@ -14,10 +14,55 @@ const serviceOptions = [
 
 export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError("");
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
+
+    if (!accessKey) {
+      setError(
+        "Email service is not configured yet. Please use WhatsApp or call us directly."
+      );
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: accessKey,
+          subject: "New Enquiry — Growing Finance Website",
+          from_name: formData.get("name"),
+          name: formData.get("name"),
+          phone: formData.get("phone"),
+          email: formData.get("email") || "Not provided",
+          service: formData.get("service"),
+          message: formData.get("message") || "No message",
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSubmitted(true);
+        form.reset();
+      } else {
+        setError(result.message || "Something went wrong. Please try WhatsApp or call us.");
+      }
+    } catch {
+      setError("Network error. Please try again or contact us on WhatsApp.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (submitted) {
@@ -31,7 +76,7 @@ export default function ContactForm() {
         <h3 className="font-serif text-xl font-bold text-navy-900 mb-2">Thank You!</h3>
         <p className="font-hindi text-gold-500 mb-2">धन्यवाद!</p>
         <p className="text-navy-700/60 text-sm">
-          We&apos;ve received your enquiry. Our team will get back to you within 24 hours.
+          Your enquiry has been sent. We&apos;ll get back to you within 24 hours.
         </p>
       </div>
     );
@@ -39,6 +84,12 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
           <label htmlFor="name" className="block text-xs font-semibold text-navy-700/70 uppercase tracking-wider mb-2">
@@ -49,7 +100,8 @@ export default function ContactForm() {
             id="name"
             name="name"
             required
-            className="w-full px-4 py-3.5 rounded-xl border border-gold-400/15 bg-cream-50 focus:border-gold-400/40 focus:ring-2 focus:ring-gold-400/10 outline-none transition-all text-sm"
+            disabled={loading}
+            className="w-full px-4 py-3.5 rounded-xl border border-gold-400/15 bg-cream-50 focus:border-gold-400/40 focus:ring-2 focus:ring-gold-400/10 outline-none transition-all text-sm disabled:opacity-60"
             placeholder="Your name"
           />
         </div>
@@ -62,8 +114,9 @@ export default function ContactForm() {
             id="phone"
             name="phone"
             required
-            className="w-full px-4 py-3.5 rounded-xl border border-gold-400/15 bg-cream-50 focus:border-gold-400/40 focus:ring-2 focus:ring-gold-400/10 outline-none transition-all text-sm"
-            placeholder="+91 98765 43210"
+            disabled={loading}
+            className="w-full px-4 py-3.5 rounded-xl border border-gold-400/15 bg-cream-50 focus:border-gold-400/40 focus:ring-2 focus:ring-gold-400/10 outline-none transition-all text-sm disabled:opacity-60"
+            placeholder="+91 83688 56402"
           />
         </div>
       </div>
@@ -76,7 +129,8 @@ export default function ContactForm() {
           type="email"
           id="email"
           name="email"
-          className="w-full px-4 py-3.5 rounded-xl border border-gold-400/15 bg-cream-50 focus:border-gold-400/40 focus:ring-2 focus:ring-gold-400/10 outline-none transition-all text-sm"
+          disabled={loading}
+          className="w-full px-4 py-3.5 rounded-xl border border-gold-400/15 bg-cream-50 focus:border-gold-400/40 focus:ring-2 focus:ring-gold-400/10 outline-none transition-all text-sm disabled:opacity-60"
           placeholder="you@example.com"
         />
       </div>
@@ -89,7 +143,8 @@ export default function ContactForm() {
           id="service"
           name="service"
           required
-          className="w-full px-4 py-3.5 rounded-xl border border-gold-400/15 bg-cream-50 focus:border-gold-400/40 focus:ring-2 focus:ring-gold-400/10 outline-none transition-all text-sm"
+          disabled={loading}
+          className="w-full px-4 py-3.5 rounded-xl border border-gold-400/15 bg-cream-50 focus:border-gold-400/40 focus:ring-2 focus:ring-gold-400/10 outline-none transition-all text-sm disabled:opacity-60"
         >
           <option value="">Select a service</option>
           {serviceOptions.map((option) => (
@@ -108,16 +163,18 @@ export default function ContactForm() {
           id="message"
           name="message"
           rows={4}
-          className="w-full px-4 py-3.5 rounded-xl border border-gold-400/15 bg-cream-50 focus:border-gold-400/40 focus:ring-2 focus:ring-gold-400/10 outline-none transition-all resize-none text-sm"
+          disabled={loading}
+          className="w-full px-4 py-3.5 rounded-xl border border-gold-400/15 bg-cream-50 focus:border-gold-400/40 focus:ring-2 focus:ring-gold-400/10 outline-none transition-all resize-none text-sm disabled:opacity-60"
           placeholder="Tell us about your requirements..."
         />
       </div>
 
       <button
         type="submit"
-        className="w-full py-4 btn-gold rounded-xl text-sm"
+        disabled={loading}
+        className="w-full py-4 btn-gold rounded-xl text-sm disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        Submit Enquiry
+        {loading ? "Sending..." : "Submit Enquiry"}
       </button>
 
       <p className="text-[11px] text-navy-700/40 text-center">

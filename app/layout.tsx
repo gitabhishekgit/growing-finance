@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans, Playfair_Display, Tiro_Devanagari_Hindi } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { siteConfig } from "@/lib/data";
 import "./globals.css";
 
@@ -65,6 +66,7 @@ export default function RootLayout({
         <Header />
         <main>{children}</main>
         <Footer />
+        <WhatsAppButton />
       </body>
     </html>
   );

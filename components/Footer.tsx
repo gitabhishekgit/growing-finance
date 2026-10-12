@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { contactInfo, navLinks, services, siteConfig } from "@/lib/data";
+import { contactInfo, navLinks, services, siteConfig, getFullAddress } from "@/lib/data";
 import BrandName from "./BrandName";
 import { LogoIcon, PhoneIcon, MailIcon, MapPinIcon } from "./Icons";
 
 export default function Footer() {
-  const fullAddress = `${contactInfo.address.line1}, ${contactInfo.address.line2}, ${contactInfo.address.city} - ${contactInfo.address.pincode}`;
+  const fullAddress = getFullAddress();
 
   return (
     <footer className="bg-navy-950 text-champagne-400/70 relative">
